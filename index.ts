@@ -59,7 +59,7 @@ class SplashLevel extends Phaser.Scene {
     this.load.image('head', 'static/assets/quetzalcoatl-head.png');
     this.load.image('tail', 'static/assets/quetzalcoatl-tail.png');
     this.load.image('body', 'static/assets/quetzalcoatl-body.png');
-    this.load.image('mayanFood', 'static/assets/mayanFood.png');
+    this.load.image('mayanFood', 'static/assets/mayan-food.png');
     /* END PRELOAD ITEMS */
   }
   private logo: Phaser.GameObjects.Image;
