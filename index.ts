@@ -59,6 +59,7 @@ class SplashLevel extends Phaser.Scene {
     this.load.image('head', 'static/assets/quetzalcoatl-head.png');
     this.load.image('tail', 'static/assets/quetzalcoatl-tail.png');
     this.load.image('body', 'static/assets/quetzalcoatl-body.png');
+    this.load.image('mayanFood', 'static/assets/mayanFood.png');
     /* END PRELOAD ITEMS */
   }
   private logo: Phaser.GameObjects.Image;
@@ -105,13 +106,43 @@ class MainLevel extends Phaser.Scene {
   preload() {}
 
   create() {
-    const head = this.physics.add.sprite(57, 200, 'head'); //113
-    const body1 = this.physics.add.sprite(128, 200, 'body'); //30
-    const body2 = this.physics.add.sprite(158, 200, 'body');
-    const tail = this.physics.add.sprite(221, 200, 'tail'); //95
+    var headPosition = 200;
+    const head = this.physics.add.sprite(headPosition, 200, 'head'); //113
+    head.scale = 0.5;
+    head.setCollideWorldBounds(true);
+    this.head = head;
+
+    const bodyGroup = this.physics.add.group();
+    const body1 = this.physics.add.sprite(0, 200, 'body');
+    body1.scale = 0.5;
+    body1.x = head.x + head.displayWidth / 2 + body1.displayWidth / 2;
+    bodyGroup.add(body1);
+
+    const body2 = this.physics.add.sprite(0, 200, 'body');
+    body2.scale = 0.5;
+    body2.x = body1.x + body1.displayWidth / 2 + body2.displayWidth / 2;
+    bodyGroup.add(body2);
+    this.bodyGroup = bodyGroup;
+
+    const tail = this.physics.add.sprite(0, 200, 'tail'); //95
+    tail.scale = 0.5;
+    tail.x = body2.x + body2.displayWidth / 2 + tail.displayWidth / 2;
+    this.tail = tail;
+
+    const mayanFood = this.physics.add.sprite(100, 100, 'mayanFood');
   }
 
-  update() {}
+  private head: Phaser.GameObjects.Sprite;
+  private tail: Phaser.GameObjects.Sprite;
+  private bodyGroup: Phaser.GameObjects.Group;
+
+  update() {
+    this.head.x -= 1;
+    this.tail.x -= 1;
+    this.bodyGroup.getChildren().forEach((body: Phaser.GameObjects.Sprite) => {
+      body.x -= 1;
+    });
+  }
 }
 
 /* -------------------------------------------------------------------------- */
