@@ -130,18 +130,34 @@ class MainLevel extends Phaser.Scene {
     this.tail = tail;
 
     const mayanFood = this.physics.add.sprite(100, 100, 'mayanFood');
+
+    const cursorKeys = this.input.keyboard.createCursorKeys();
+    this.cursorKeys = cursorKeys;
   }
 
   private head: Phaser.GameObjects.Sprite;
   private tail: Phaser.GameObjects.Sprite;
   private bodyGroup: Phaser.GameObjects.Group;
+  private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
 
   update() {
-    this.head.x -= 1;
-    this.tail.x -= 1;
-    this.bodyGroup.getChildren().forEach((body: Phaser.GameObjects.Sprite) => {
-      body.x -= 1;
-    });
+    if (this.cursorKeys.left.isDown) {
+      this.head.x -= 1;
+      this.tail.x -= 1;
+      this.bodyGroup
+        .getChildren()
+        .forEach((body: Phaser.GameObjects.Sprite) => {
+          body.x -= 1;
+        });
+    }
+    if (this.cursorKeys.down.isDown) {
+      this.head.angle = -90;
+      //this.head.x += this.head.displayHeight / 2;
+      console.log(this.head.y);
+      console.log(this.head.displayHeight);
+      this.head.y += this.head.displayHeight;
+      this.cursorKeys.down.reset();
+    }
   }
 }
 
