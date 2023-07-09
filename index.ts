@@ -59,6 +59,7 @@ class SplashLevel extends Phaser.Scene {
     this.load.image('head', 'static/assets/quetzalcoatl-head.png');
     this.load.image('tail', 'static/assets/quetzalcoatl-tail.png');
     this.load.image('body', 'static/assets/quetzalcoatl-body.png');
+    this.load.image('corner', 'static/assets/quetzalcoatl-corner-v2.png');
     this.load.image('mayanFood', 'static/assets/mayan-food.png');
     /* END PRELOAD ITEMS */
   }
@@ -97,6 +98,12 @@ class SplashLevel extends Phaser.Scene {
 }
 
 /* ----------------------------------- MAIN SCENE --------------------------------- */
+enum Direction {
+  Up,
+  Down,
+  Left,
+  Right,
+}
 
 class MainLevel extends Phaser.Scene {
   constructor() {
@@ -106,6 +113,8 @@ class MainLevel extends Phaser.Scene {
   preload() {}
 
   create() {
+    this.cameras.main.setBackgroundColor(0xffdead);
+
     var headPosition = 200;
     const head = this.physics.add.sprite(headPosition, 200, 'head'); //113
     head.scale = 0.5;
@@ -124,6 +133,10 @@ class MainLevel extends Phaser.Scene {
     bodyGroup.add(body2);
     this.bodyGroup = bodyGroup;
 
+    const corner = this.physics.add.sprite(-200, -200, 'corner'); //95
+    corner.scale = 0.6;
+    this.corner = corner;
+
     const tail = this.physics.add.sprite(0, 200, 'tail'); //95
     tail.scale = 0.5;
     tail.x = body2.x + body2.displayWidth / 2 + tail.displayWidth / 2;
@@ -137,8 +150,10 @@ class MainLevel extends Phaser.Scene {
 
   private head: Phaser.GameObjects.Sprite;
   private tail: Phaser.GameObjects.Sprite;
+  private corner: Phaser.GameObjects.Sprite;
   private bodyGroup: Phaser.GameObjects.Group;
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+  private direction: Direction = Direction.Left;
 
   update() {
     if (this.cursorKeys.left.isDown) {
@@ -151,12 +166,66 @@ class MainLevel extends Phaser.Scene {
         });
     }
     if (this.cursorKeys.down.isDown) {
-      this.head.angle = -90;
-      //this.head.x += this.head.displayHeight / 2;
-      console.log(this.head.y);
-      console.log(this.head.displayHeight);
-      this.head.y += this.head.displayHeight;
+      this.direction = Direction.Down;
+      this.turn();
       this.cursorKeys.down.reset();
+    }
+  }
+
+  turn() {
+    if (this.direction == Direction.Down) {
+      let previousChild: Phaser.GameObjects.Sprite = null;
+
+      if (this.head.angle == 0) {
+        previousChild = this.head;
+      }
+
+      //let cornerSet = false;
+      this.bodyGroup
+        .getChildren()
+        .forEach((child: Phaser.GameObjects.Sprite, index: number) => {
+          if (previousChild == this.head) {
+            this.corner.x = previousChild.x + 5;
+            this.corner.y = previousChild.y + 5;
+            this.corner.angle = -90;
+            //cornerSet = true;
+            previousChild = child;
+          } else if (child.angle == -90) {
+            child.y += child.displayHeight / 2;
+            child.x = this.head.x;
+            previousChild = child;
+          } else if (previousChild) {
+            child.x = previousChild.x;
+            child.y = previousChild.y;
+            child.angle = -90;
+          }
+          console.log(
+            index +
+              ' - ' +
+              child.angle +
+              ' - ' +
+              this.bodyGroup.getChildren()[index]
+          );
+          if (
+            index + 1 == this.bodyGroup.getChildren().length &&
+            child.angle == -90
+          ) {
+            this.tail.angle = -90;
+            this.tail.x = previousChild.x;
+            this.tail.y = previousChild.y;
+            this.corner.x = -200;
+            this.corner.y = -200;
+          }
+        });
+
+      if (this.head.angle == 0) {
+        this.head.angle = -90;
+        this.head.y += this.head.displayHeight / 2;
+      } else {
+        this.head.y += previousChild.displayHeight / 2;
+      }
+
+      this.tail.x -= previousChild.displayWidth;
     }
   }
 }
